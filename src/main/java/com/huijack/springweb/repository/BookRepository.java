@@ -5,11 +5,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class BookRepository {
 
-    List<Book> books = new ArrayList<>(List.of(
+    private final List<Book> books = new ArrayList<>(List.of(
             new Book(1001, "Harry Potter", "LOL", "J.K. Rowling", 520.00),
             new Book(1002, "The Hobbit", "LOL", "J.R.R. Tolkien", 300.00),
             new Book(1003, "The Lord of the Rings", "LOL", "J.R.R. Tolkien", 400.00)
@@ -19,31 +20,28 @@ public class BookRepository {
         return books;
     }
 
-    public Book getBook(int bookId) {
-        for (Book book : books) {
-            if (book.getBookId() == bookId) {
-                return book;
-            }
-        }
-        return null;
+    public Optional<Book> getBook(int bookId) {
+        return books.stream().filter(b -> b.getBookId() == bookId).findFirst();
     }
 
     public void addBook(Book book) {
         books.add(book);
     }
 
-    public void updateBook(Book book) {
-        for (Book b : books) {
-            if (b.getBookId() == book.getBookId()) {
-                b.setBookName(book.getBookName());
-                b.setBookDescription(book.getBookDescription());
-                b.setBookAuthor(book.getBookAuthor());
-                b.setBookPrice(book.getBookPrice());
-            }
-        }
+    public boolean updateBook(Book book) {
+        return books.stream()
+                .filter(b -> b.getBookId() == book.getBookId())
+                .findFirst()
+                .map(b -> {
+                    b.setBookName(book.getBookName());
+                    b.setBookDescription(book.getBookDescription());
+                    b.setBookAuthor(book.getBookAuthor());
+                    b.setBookPrice(book.getBookPrice());
+                    return true;
+                }).orElse(false);
     }
 
-    public void deleteBook(int bookId) {
-        books.removeIf(book -> book.getBookId() == bookId);
+    public boolean deleteBook(int bookId) {
+        return books.removeIf(b -> b.getBookId() == bookId);
     }
 }

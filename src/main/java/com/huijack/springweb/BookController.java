@@ -2,42 +2,51 @@ package com.huijack.springweb;
 
 import com.huijack.springweb.model.Book;
 import com.huijack.springweb.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/books")
 public class BookController {
 
-    @Autowired
-    BookService bookService;
+    private final BookService bookService;
 
-    @GetMapping("getBooks")
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
+    @GetMapping
     public List<Book> getBooks() {
         return bookService.getBooks();
     }
 
-    @GetMapping("getBook/{id}")
-    public Book getBook(@PathVariable int id) {
-        return bookService.getBook(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<Book> getBook(@PathVariable int id) {
+        return bookService.getBook(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("addBook")
-    public Book addBook(@RequestBody Book book) {
+    @PostMapping
+    public ResponseEntity<Book> addBook(@RequestBody Book book) {
         bookService.addBook(book);
-        return book;
+        return ResponseEntity.status(HttpStatus.CREATED).body(book);
     }
 
-    @PutMapping("updateBook")
-    public Book updateBook(@RequestBody Book book) {
-        bookService.updateBook(book);
-        return book;
+    @PutMapping
+    public ResponseEntity<Book> updateBook(@RequestBody Book book) {
+        return bookService.updateBook(book)
+                ? ResponseEntity.ok(book)
+                : ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("deleteBook/{id}")
-    public String deleteBook(@PathVariable int id) {
-        bookService.deleteBook(id);
-        return "Book deleted successfully";
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBook(@PathVariable int id) {
+        return bookService.deleteBook(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }

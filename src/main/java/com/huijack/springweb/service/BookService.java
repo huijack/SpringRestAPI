@@ -6,18 +6,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BookService {
 
+    private final BookRepository bookRepository;
+
     @Autowired
-    BookRepository bookRepository;
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
 
     public List<Book> getBooks() {
         return bookRepository.getBooks();
     }
 
-    public Book getBook(int bookId) {
+    public Optional<Book> getBook(int bookId) {
         return bookRepository.getBook(bookId);
     }
 
@@ -25,11 +30,11 @@ public class BookService {
         bookRepository.addBook(book);
     }
 
-    public void updateBook(Book book) {
-        bookRepository.updateBook(book);
+    public boolean updateBook(Book book) {
+        return bookRepository.updateBook(book);
     }
 
-    public void deleteBook(int bookId) {
-        bookRepository.deleteBook(bookId);
+    public boolean deleteBook(int bookId) {
+        return bookRepository.deleteBook(bookId);
     }
 }
